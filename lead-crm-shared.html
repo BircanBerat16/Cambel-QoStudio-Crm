@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cambel × Qo Studio — Lead Takip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Syne+Mono&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;
+  --s1:#111113;
+  --s2:#181819;
+  --s3:#222225;
+  --s4:#2c2c30;
+  --b1:#333338;
+  --b2:#444449;
+  --t1:#f2f0eb;
+  --t2:#9b9894;
+  --t3:#5a5856;
+  --cambel:#e8c547;
+  --cambel-dim:#23200a;
+  --cambel-mid:#6b590f;
+  --quo:#4fa8e8;
+  --quo-dim:#0a1e30;
+  --quo-mid:#1a5080;
+  --green:#4ecb8a;
+  --green-dim:#082818;
+  --red:#e85050;
+  --red-dim:#280808;
+  --orange:#e87d30;
+  --orange-dim:#281508;
+  --sans:'Syne',sans-serif;
+  --mono:'Syne Mono',monospace;
+  --r6:6px;--r10:10px;--r14:14px;--r20:20px;
+}
+html,body{min-height:100vh;background:var(--bg)}
+body{font-family:var(--sans);font-size:13px;color:var(--t1)}
+*{font-family:inherit}
+
+/* ─── LOGIN SCREEN ─────────────────────────── */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+.login-screen::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(232,197,71,.04) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.login-box{width:400px;padding:48px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r20);position:relative;z-index:1}
+.login-logo{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.login-logo .x{color:var(--t3);margin:0 6px;font-weight:400}
+.login-logo .cambel{color:var(--cambel)}
+.login-logo .quo{color:var(--quo)}
+.login-tagline{font-size:11px;color:var(--t3);letter-spacing:.06em;margin-bottom:36px}
+.login-label{font-size:11px;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:16px}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.role-card{padding:16px;border:1px solid var(--b1);border-radius:var(--r14);background:none;cursor:pointer;text-align:left;transition:all .15s;position:relative;overflow:hidden}
+.role-card:hover{border-color:var(--b2);background:var(--s2)}
+.role-card.sel-cambel{border-color:var(--cambel);background:var(--cambel-dim)}
+.role-card.sel-quo{border-color:var(--quo);background:var(--quo-dim)}
+.role-card-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.role-card.sel-cambel .role-card-name{color:var(--cambel)}
+.role-card.sel-quo .role-card-name{color:var(--quo)}
+.role-card-desc{font-size:11px;color:var(--t3);line-height:1.4}
+.role-indicator{position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--b1)}
+.role-card.sel-cambel .role-indicator{background:var(--cambel)}
+.role-card.sel-quo .role-indicator{background:var(--quo)}
+.pw-row{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.pw-row label{font-size:11px;color:var(--t3);letter-spacing:.07em;text-transform:uppercase}
+.pw-input-wrap{position:relative}
+.pw-input-wrap input{width:100%;padding:11px 40px 11px 14px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r10);color:var(--t1);font-size:14px;outline:none;transition:border .15s;letter-spacing:.1em}
+.pw-input-wrap input:focus{border-color:var(--b2)}
+.pw-input-wrap input::placeholder{letter-spacing:0;color:var(--t3)}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0}
+.login-btn{width:100%;padding:13px;background:var(--t1);color:var(--bg);border:none;border-radius:var(--r10);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .15s}
+.login-btn:hover{opacity:.88}
+.login-btn.cambel-btn{background:var(--cambel);color:#0a0a0b}
+.login-btn.quo-btn{background:var(--quo);color:#0a0a0b}
+.login-err{font-size:12px;color:var(--red);text-align:center;margin-top:12px;min-height:18px}
+
+/* ─── APP SHELL ─────────────────────────────── */
+.app{display:none;grid-template-columns:260px 1fr;min-height:100vh}
+.app.visible{display:grid}
+
+/* SIDEBAR */
+.sidebar{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto}
+.sidebar-top{padding:28px 22px 20px;border-bottom:1px solid var(--b1)}
+.sb-brand{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
+.sb-brand .cx{color:var(--t3);font-weight:400;margin:0 5px}
+.sb-brand .c-cambel{color:var(--cambel)}
+.sb-brand .c-quo{color:var(--quo)}
+.sb-role-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-top:8px;letter-spacing:.04em}
+.sb-role-pill.cambel{background:var(--cambel-dim);color:var(--cambel);border:1px solid var(--cambel-mid)}
+.sb-role-pill.quo{background:var(--quo-dim);color:var(--quo);border:1px solid var(--quo-mid)}
+.sb-role-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cambel .sb-role-dot{background:var(--cambel)}
+.quo .sb-role-dot{background:var(--quo)}
+
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section{font-size:9px;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;padding:0 10px;margin:12px 0 4px}
+.nav-item{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:var(--r10);background:none;border:none;width:100%;text-align:left;color:var(--t2);font-size:13px;cursor:pointer;transition:all .12s;font-family:var(--sans)}
+.nav-item:hover{background:var(--s2);color:var(--t1)}
+.nav-item.on{background:var(--s3);color:var(--t1);font-weight:500}
+.nav-item .nbadge{font-size:10px;background:var(--s4);color:var(--t3);padding:2px 7px;border-radius:10px}
+.nav-item.on .nbadge{background:var(--b1);color:var(--t2)}
+
+.sidebar-bottom{padding:16px 22px;border-top:1px solid var(--b1)}
+.sb-stats-title{font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.sb-stat{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.sb-stat-k{font-size:11px;color:var(--t3)}
+.sb-stat-v{font-size:13px;font-weight:600;color:var(--t1)}
+.sb-stat-v.c{color:var(--cambel)}
+.sb-stat-v.g{color:var(--green)}
+.sb-stat-v.o{color:var(--orange)}
+.logout-btn{width:100%;margin-top:14px;padding:8px;background:none;border:1px solid var(--b1);border-radius:var(--r10);color:var(--t3);font-size:12px;cursor:pointer;transition:all .12s;font-family:var(--sans)}
+.logout-btn:hover{border-color:var(--b2);color:var(--t1)}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10}
+.tb-left .tb-title{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.tb-left .tb-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.tb-right{display:flex;gap:8px;align-items:center}
+.search-wrap{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r10);padding:7px 12px}
+.search-wrap input{background:none;border:none;outline:none;font-size:12px;color:var(--t1);width:180px;font-family:var(--sans)}
+.search-wrap input::placeholder{color:var(--t3)}
+.si{color:var(--t3);font-size:13px}
+.btn-add{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--cambel);color:#0a0a0b;border:none;border-radius:var(--r10);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s;font-family:var(--sans)}
+.btn-add:hover{opacity:.85}
+
+.content{padding:28px 32px;flex:1}
+
+/* ─── STATS ──────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r14);padding:20px;position:relative;overflow:hidden;animation:fadeUp .3s ease both}
+.sc-bar{position:absolute;top:0;left:0;right:0;height:2px}
+.sc.cambel-bar .sc-bar{background:var(--cambel)}
+.sc.quo-bar .sc-bar{background:var(--quo)}
+.sc.green-bar .sc-bar{background:var(--green)}
+.sc.orange-bar .sc-bar{background:var(--orange)}
+.sc-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+.sc-val{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.sc-sub{font-size:11px;color:var(--t3);margin-top:5px}
+.sc-sub.g{color:var(--green)}
+.sc-sub.c{color:var(--cambel)}
+.sc-sub.o{color:var(--orange)}
+.sc:nth-child(1){animation-delay:.05s}
+.sc:nth-child(2){animation-delay:.1s}
+.sc:nth-child(3){animation-delay:.15s}
+.sc:nth-child(4){animation-delay:.2s}
+
+/* ─── PIPELINE ───────────────────────────────── */
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.p-col{background:var(--s2);border-radius:var(--r14);padding:14px;min-height:300px}
+.p-col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.p-col-title{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.p-col-count{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--s3)}
+.col-pasla .p-col-title{color:var(--cambel)}
+.col-pasla .p-col-count{background:var(--cambel-dim);color:var(--cambel-mid)}
+.col-gorusme .p-col-title{color:var(--quo)}
+.col-gorusme .p-col-count{background:var(--quo-dim);color:var(--quo-mid)}
+.col-kapandi .p-col-title{color:var(--green)}
+.col-kapandi .p-col-count{background:var(--green-dim);color:#1a6b45}
+.col-iptal .p-col-title{color:var(--t3)}
+.col-iptal .p-col-count{background:var(--s3);color:var(--t3)}
+
+.lead-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r10);padding:14px;margin-bottom:8px;cursor:pointer;transition:all .15s;animation:fadeUp .25s ease both}
+.lead-card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.lead-card-name{font-size:14px;font-weight:600;margin-bottom:3px;color:var(--t1)}
+.lead-card-meta{font-size:11px;color:var(--t3);display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.meta-dot{width:3px;height:3px;border-radius:50%;background:var(--b2)}
+.lead-card-foot{display:flex;align-items:center;justify-content:space-between}
+.lc-date{font-size:10px;color:var(--t3)}
+.lc-kom{font-size:11px;font-weight:600}
+.lc-kom.bek{color:var(--orange)}
+.lc-kom.ok{color:var(--green)}
+.lc-kom.none{color:var(--t3)}
+.lead-card .who-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.04em}
+.who-cambel{background:var(--cambel-dim);color:var(--cambel-mid)}
+
+.p-empty{text-align:center;padding:24px 0;font-size:12px;color:var(--t3);font-style:italic}
+
+/* ─── LIST TABLE ─────────────────────────────── */
+.tbl-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r14);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{padding:10px 16px;text-align:left;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;background:var(--s2);border-bottom:1px solid var(--b1);font-weight:500}
+td{padding:12px 16px;border-bottom:1px solid var(--b1);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+tr:last-child td{border-bottom:none}
+.trow{cursor:pointer;transition:background .1s}
+.trow:hover td{background:var(--s2)}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.03em}
+.bdg::before{content:'';width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.b-pas{background:var(--cambel-dim);color:var(--cambel)}.b-pas::before{background:var(--cambel)}
+.b-gor{background:var(--quo-dim);color:var(--quo)}.b-gor::before{background:var(--quo)}
+.b-kap{background:var(--green-dim);color:var(--green)}.b-kap::before{background:var(--green)}
+.b-ipt{background:var(--s3);color:var(--t3)}.b-ipt::before{background:var(--t3)}
+
+/* FILTER TABS */
+.filter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ftabs{display:flex;gap:3px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r10);padding:3px}
+.ftab{padding:6px 14px;border-radius:8px;background:none;border:none;font-size:11px;color:var(--t3);cursor:pointer;transition:all .12s;font-family:var(--sans);font-weight:500}
+.ftab:hover{color:var(--t2)}
+.ftab.on{background:var(--s3);color:var(--t1)}
+
+/* ─── DETAIL PANEL ───────────────────────────── */
+.detail-panel{position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--s1);border-left:1px solid var(--b1);z-index:100;overflow-y:auto;transform:translateX(100%);transition:transform .22s ease;box-shadow:-12px 0 40px rgba(0,0,0,.4)}
+.detail-panel.open{transform:translateX(0)}
+.dp-inner{padding:28px}
+.dp-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:0 4px}
+.dp-close:hover{color:var(--t1)}
+.dp-who{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;color:var(--cambel)}
+.dp-name{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--t1);margin-bottom:4px;line-height:1.2}
+.dp-meta{font-size:12px;color:var(--t3);margin-bottom:20px}
+
+.dp-status-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.status-btn{padding:7px 14px;border:1px solid var(--b1);border-radius:20px;background:none;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .12s;font-family:var(--sans)}
+.status-btn:hover{border-color:var(--b2)}
+.status-btn.on-pas{background:var(--cambel-dim);border-color:var(--cambel-mid);color:var(--cambel)}
+.status-btn.on-gor{background:var(--quo-dim);border-color:var(--quo-mid);color:var(--quo)}
+.status-btn.on-kap{background:var(--green-dim);border-color:#1a6b45;color:var(--green)}
+.status-btn.on-ipt{background:var(--s3);border-color:var(--b2);color:var(--t2)}
+
+.dp-section{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--b1)}
+.dp-section:last-child{border-bottom:none}
+.dp-sec-title{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;font-weight:600}
+.dp-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.dp-key{font-size:12px;color:var(--t3)}
+.dp-val{font-size:13px;color:var(--t1);font-weight:500;text-align:right;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dp-note{font-size:12px;color:var(--t2);line-height:1.7;background:var(--s2);border-radius:var(--r10);padding:12px;margin-top:6px}
+
+.kom-panel{background:var(--s2);border-radius:var(--r10);padding:14px;margin-bottom:12px}
+.kom-panel-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;font-weight:600}
+.kom-amount{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.kom-amount.bek{color:var(--orange)}
+.kom-amount.ok{color:var(--green)}
+.kom-amount.none{color:var(--t3)}
+.kom-status-row{display:flex;gap:6px;margin-top:10px}
+.kom-status-btn{flex:1;padding:7px;border-radius:var(--r10);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .12s;font-family:var(--sans);border:1px solid var(--b1);background:none;color:var(--t3)}
+.kom-status-btn:hover{border-color:var(--b2)}
+.kom-status-btn.on-bek{background:var(--orange-dim);border-color:#6b3a10;color:var(--orange)}
+.kom-status-btn.on-ok{background:var(--green-dim);border-color:#1a6b45;color:var(--green)}
+
+.dp-edit-btn{width:100%;padding:12px;background:var(--t1);color:var(--bg);border:none;border-radius:var(--r10);font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;font-family:var(--sans);transition:opacity .12s}
+.dp-edit-btn:hover{opacity:.85}
+
+.quo-locked{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--quo-dim);border:1px solid var(--quo-mid);border-radius:var(--r10);font-size:12px;color:var(--quo);margin-bottom:12px}
+
+/* ─── MODAL ──────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-start;justify-content:center;padding-top:56px;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r20);padding:32px;width:540px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-size:22px;font-weight:700;letter-spacing:-.4px}
+.modal-title span{color:var(--cambel)}
+.mclose{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:0 4px;margin-top:2px}
+.mclose:hover{color:var(--t1)}
+.fsec{margin-bottom:20px}
+.fsec-title{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--b1);font-weight:600}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.frow{display:flex;flex-direction:column;gap:5px}
+.frow label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.frow input,.frow select,.frow textarea{padding:10px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r10);color:var(--t1);font-size:13px;outline:none;transition:border .12s;font-family:var(--sans)}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--b2)}
+.frow input::placeholder,.frow textarea::placeholder{color:var(--t3)}
+.frow select option{background:var(--s2)}
+.kom-type-row{display:flex;gap:8px;margin-bottom:12px}
+.ktbtn{flex:1;padding:9px;border:1px solid var(--b1);border-radius:var(--r10);background:none;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .12s;font-family:var(--sans)}
+.ktbtn.on{background:var(--cambel-dim);border-color:var(--cambel-mid);color:var(--cambel)}
+.mfooter{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--b1)}
+.del-link{background:none;border:none;font-size:12px;color:var(--t3);cursor:pointer;font-family:var(--sans)}
+.del-link:hover{color:var(--red)}
+.mfooter-r{display:flex;gap:10px}
+.bcnl{padding:9px 18px;background:none;border:1px solid var(--b1);border-radius:var(--r10);font-size:13px;color:var(--t2);cursor:pointer;font-family:var(--sans);font-weight:500}
+.bcnl:hover{color:var(--t1);border-color:var(--b2)}
+.bsav{padding:9px 22px;background:var(--cambel);color:#0a0a0b;border:none;border-radius:var(--r10);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity .12s}
+.bsav:hover{opacity:.85}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--b1);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><span class="cambel">Cambel</span><span class="x">×</span><span class="quo">Qo Studio</span></div>
+    <div class="login-tagline">Lead takip sistemi</div>
+    <div class="login-label">Giriş yapıyorsun</div>
+    <div class="role-cards">
+      <button class="role-card sel-cambel" id="rc-cambel" onclick="selectRole('cambel')">
+        <div class="role-indicator"></div>
+        <div class="role-card-name">Cambel</div>
+        <div class="role-card-desc">Lead girer, müşteri paslar</div>
+      </button>
+      <button class="role-card" id="rc-quo" onclick="selectRole('quo')">
+        <div class="role-indicator"></div>
+        <div class="role-card-name">Qo Studio</div>
+        <div class="role-card-desc">Süreci yönetir, satışı kapatır</div>
+      </button>
+    </div>
+    <div class="pw-row">
+      <label>Şifre</label>
+      <div class="pw-input-wrap">
+        <input type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="pw-eye" onclick="togglePw()" id="pwEye">👁</button>
+      </div>
+    </div>
+    <button class="login-btn cambel-btn" id="loginBtn" onclick="doLogin()">Giriş Yap</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div class="app" id="appShell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sb-brand"><span class="c-cambel">Cambel</span><span class="cx">×</span><span class="c-quo">Quo</span></div>
+      <div class="sb-role-pill" id="rolePill"><span class="sb-role-dot"></span><span id="rolePillText"></span></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Görünüm</div>
+      <button class="nav-item on" onclick="setView('pipeline',this)">Müşteri CRM <span class="nbadge" id="nb-pipeline">0</span></button>
+      <button class="nav-item" onclick="setView('liste',this)">Tüm leadlar <span class="nbadge" id="nb-liste">0</span></button>
+      <button class="nav-item" onclick="setView('komisyon',this)">Komisyon <span class="nbadge" id="nb-komisyon">0</span></button>
+      <div class="nav-section">Filtrele</div>
+      <button class="nav-item" onclick="filterByStatus('paslandi')">Paslandı</button>
+      <button class="nav-item" onclick="filterByStatus('gorusmede')">Görüşmede</button>
+      <button class="nav-item" onclick="filterByStatus('kapandi')">Kapandı</button>
+      <button class="nav-item" onclick="filterByStatus('iptal')">İptal</button>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sb-stats-title">Özet</div>
+      <div id="sbStats"></div>
+      <button class="logout-btn" onclick="logout()">Çıkış yap</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <div class="tb-title" id="tbTitle">Müşteri CRM</div>
+        <div class="tb-sub" id="tbSub"></div>
+      </div>
+      <div class="tb-right">
+        <div class="search-wrap">
+          <span class="si">⌕</span>
+          <input type="text" id="searchInput" placeholder="İsim, telefon, kaynak..." oninput="renderContent()"/>
+        </div>
+        <button class="btn-add" id="addBtn" onclick="openModal(null)">+ Lead ekle</button>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </main>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-inner" id="dpInner"></div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <div class="modal-head">
+    <div class="modal-title">Lead <span>ekle</span></div>
+    <button class="mclose" onclick="closeModal()">×</button>
+  </div>
+  <div class="fsec">
+    <div class="fsec-title">Müşteri bilgileri</div>
+    <div class="f2">
+      <div class="frow"><label>Ad Soyad</label><input id="fname" placeholder="Ahmet Yılmaz"/></div>
+      <div class="frow"><label>Telefon</label><input id="fphone" placeholder="0555 123 4567"/></div>
+    </div>
+    <div class="f2" style="margin-top:10px">
+      <div class="frow"><label>E-posta</label><input id="femail" placeholder="ornek@mail.com"/></div>
+      <div class="frow"><label>Kaynak</label>
+        <select id="fsource">
+          <option>Instagram</option><option>Referans</option><option>Google</option>
+          <option>LinkedIn</option><option>Soğuk Arama</option><option>Diğer</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow" style="margin-top:10px"><label>Not / İhtiyaç</label>
+      <textarea id="fnot" rows="2" placeholder="Müşterinin ihtiyacı, özel notlar, nasıl bulundu..."></textarea>
+    </div>
+  </div>
+  <div id="quoModalSection" style="display:none">
+  <div class="fsec">
+    <div class="fsec-title">Teklif & Komisyon (Qo Studio)</div>
+    <div class="f2">
+      <div class="frow"><label>Müşteriye teklif (₺)</label><input type="number" id="fteklif" placeholder="0"/></div>
+      <div class="frow"><label>Cambel komisyonu (₺)</label><input type="number" id="fkomtutar" placeholder="0"/></div>
+    </div>
+
+  </div>
+  </div>
+  <div class="mfooter">
+    <span id="mDelWrap"></span>
+    <div class="mfooter-r">
+      <button class="bcnl" onclick="closeModal()">İptal</button>
+      <button class="bsav" onclick="saveLead()">Kaydet & Pasla</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── PASSWORDS (değiştirilebilir) ──
+const PASSWORDS = { cambel: 'cambel2024', quo: 'qostudio2024' };
+
+const LK = 'cxq_leads_v1';
+let leads = [], role = null, editId = null, currentView = 'pipeline', statusFilter = null, komType = 'sabit';
+
+// ── AUTH ──────────────────────────────────────
+let selectedRole = 'cambel';
+function selectRole(r) {
+  selectedRole = r;
+  document.getElementById('rc-cambel').className = 'role-card' + (r==='cambel'?' sel-cambel':'');
+  document.getElementById('rc-quo').className = 'role-card' + (r==='quo'?' sel-quo':'');
+  const btn = document.getElementById('loginBtn');
+  btn.className = 'login-btn ' + (r==='cambel'?'cambel-btn':'quo-btn');
+  btn.textContent = r==='cambel'?'Cambel olarak gir':'Qo Studio olarak gir';
+}
+function togglePw() {
+  const inp = document.getElementById('pwInput');
+  inp.type = inp.type==='password'?'text':'password';
+}
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === PASSWORDS[selectedRole]) {
+    role = selectedRole;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').classList.add('visible');
+    initApp();
+  } else {
+    document.getElementById('loginErr').textContent = 'Şifre yanlış.';
+    setTimeout(()=>document.getElementById('loginErr').textContent='', 2000);
+  }
+}
+function logout() {
+  role = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').classList.remove('visible');
+  document.getElementById('pwInput').value = '';
+  selectRole('cambel');
+}
+
+// ── DATA ──────────────────────────────────────
+function load() {
+  try { leads = JSON.parse(localStorage.getItem(LK) || '[]'); } catch { leads = []; }
+  if (!leads.length) seed();
+}
+function save() { localStorage.setItem(LK, JSON.stringify(leads)); }
+function seed() {
+  const d = n => { const x=new Date(); x.setDate(x.getDate()-n); return x.toISOString().split('T')[0]; };
+  leads = [
+    {id:1,name:'Mehmet Kara',phone:'0532 111 2233',email:'',source:'Instagram',status:'kapandi',not:'Web sitesi + SEO paketi',komType:'sabit',komTutar:750,komOdendi:'evet',created:d(18)},
+    {id:2,name:'Ayşe Çelik',phone:'0541 444 5566',email:'ayse@gmail.com',source:'Referans',status:'gorusmede',not:'E-ticaret sitesi istiyor',komType:'yuzde',komTutar:600,komOdendi:'hayir',created:d(6)},
+    {id:3,name:'Burak Doğan',phone:'0505 777 8899',email:'',source:'Instagram',status:'paslandi',not:'Logo ve kurumsal kimlik',komType:'sabit',komTutar:400,komOdendi:'hayir',created:d(2)},
+    {id:4,name:'Selin Yurt',phone:'0551 222 3344',email:'selin@ex.com',source:'Google',status:'iptal',not:'Bütçe uygun değil',komType:'yok',komTutar:0,komOdendi:'hayir',created:d(14)},
+    {id:5,name:'Can Aydın',phone:'0533 555 6677',email:'',source:'LinkedIn',status:'paslandi',not:'Sosyal medya yönetimi',komType:'sabit',komTutar:500,komOdendi:'hayir',created:d(1)},
+  ];
+  save();
+}
+
+// ── HELPERS ──────────────────────────────────
+function komVal(l) { return l.komType==='yok' ? 0 : (l.komTutar||0); }
+function fmtDate(d) { if(!d)return'—'; const[y,m,dd]=d.split('-'); return`${dd}.${m}.${y}`; }
+function badgeHtml(s) {
+  const m={paslandi:'<span class="bdg b-pas">Paslandı</span>',gorusmede:'<span class="bdg b-gor">Görüşmede</span>',kapandi:'<span class="bdg b-kap">Kapandı</span>',iptal:'<span class="bdg b-ipt">İptal</span>'};
+  return m[s]||s;
+}
+function statusLabel(s) { return {paslandi:'Paslandı',gorusmede:'Görüşmede',kapandi:'Kapandı',iptal:'İptal'}[s]||s; }
+function filteredLeads() {
+  let list = [...leads];
+  if (statusFilter) list = list.filter(l=>l.status===statusFilter);
+  const q = (document.getElementById('searchInput')||{value:''}).value.toLowerCase().trim();
+  if (q) list = list.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.phone||'').includes(q)||(l.source||'').toLowerCase().includes(q));
+  return list;
+}
+
+// ── INIT ──────────────────────────────────────
+function initApp() {
+  const pill = document.getElementById('rolePill');
+  pill.className = 'sb-role-pill ' + role;
+  document.getElementById('rolePillText').textContent = role==='cambel'?'Cambel':'Qo Studio';
+  // Cambel can add, Qo Studio cannot
+  document.getElementById('addBtn').style.display = role==='cambel'?'flex':'none';
+  renderSidebar();
+  renderContent();
+}
+
+// ── SIDEBAR ───────────────────────────────────
+function renderSidebar() {
+  const all = leads;
+  const odendi = all.filter(l=>l.komOdendi==='evet').reduce((s,l)=>s+komVal(l),0);
+  const bekleyen = all.filter(l=>l.komOdendi==='hayir'&&l.komType!=='yok'&&l.status!=='iptal').reduce((s,l)=>s+komVal(l),0);
+  const kapandi = all.filter(l=>l.status==='kapandi').length;
+  document.getElementById('sbStats').innerHTML = `
+    <div class="sb-stat"><span class="sb-stat-k">Toplam lead</span><span class="sb-stat-v">${all.length}</span></div>
+    <div class="sb-stat"><span class="sb-stat-k">Kapandı</span><span class="sb-stat-v g">${kapandi}</span></div>
+    <div class="sb-stat"><span class="sb-stat-k">Kom. kazanılan</span><span class="sb-stat-v c">${odendi.toLocaleString('tr-TR')} ₺</span></div>
+    <div class="sb-stat"><span class="sb-stat-k">Kom. bekleyen</span><span class="sb-stat-v o">${bekleyen.toLocaleString('tr-TR')} ₺</span></div>
+  `;
+  document.getElementById('nb-pipeline').textContent = all.length;
+  document.getElementById('nb-liste').textContent = all.length;
+  document.getElementById('nb-komisyon').textContent = all.filter(l=>l.komOdendi==='hayir'&&l.komType!=='yok'&&l.status!=='iptal').length;
+}
+
+// ── VIEWS ─────────────────────────────────────
+function setView(v, btn) {
+  currentView = v; statusFilter = null;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  const titles = {pipeline:'Müşteri CRM',liste:'Tüm Leadlar',komisyon:'Komisyon Takibi'};
+  document.getElementById('tbTitle').textContent = titles[v]||v;
+  renderContent();
+}
+function filterByStatus(s) {
+  currentView = 'liste'; statusFilter = s;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('on'));
+  document.getElementById('tbTitle').textContent = statusLabel(s);
+  renderContent();
+}
+
+function statsHtml() {
+  const all = leads;
+  const kapandi = all.filter(l=>l.status==='kapandi').length;
+  const oran = all.length ? Math.round((kapandi/all.length)*100) : 0;
+  const odendi = all.filter(l=>l.komOdendi==='evet').reduce((s,l)=>s+komVal(l),0);
+  const bek = all.filter(l=>l.komOdendi==='hayir'&&l.komType!=='yok'&&l.status!=='iptal').reduce((s,l)=>s+komVal(l),0);
+  return `<div class="stats">
+    <div class="sc quo-bar"><div class="sc-bar"></div><div class="sc-label">Toplam lead</div><div class="sc-val">${all.length}</div><div class="sc-sub">${all.filter(l=>['paslandi','gorusmede'].includes(l.status)).length} aktif süreçte</div></div>
+    <div class="sc green-bar"><div class="sc-bar"></div><div class="sc-label">Dönüşüm oranı</div><div class="sc-val">${oran}%</div><div class="sc-sub g">${kapandi} satış kapandı</div></div>
+    <div class="sc cambel-bar"><div class="sc-bar"></div><div class="sc-label">Kazanılan komisyon</div><div class="sc-val">${odendi.toLocaleString('tr-TR')} ₺</div><div class="sc-sub c">ödendi</div></div>
+    <div class="sc orange-bar"><div class="sc-bar"></div><div class="sc-label">Bekleyen komisyon</div><div class="sc-val">${bek.toLocaleString('tr-TR')} ₺</div><div class="sc-sub o">alınacak</div></div>
+  </div>`;
+}
+
+// ── PIPELINE ──────────────────────────────────
+function pipelineHtml() {
+  const q = (document.getElementById('searchInput')||{value:''}).value.toLowerCase().trim();
+  const cols=[['paslandi','Paslandı','col-pasla'],['gorusmede','Görüşmede','col-gorusme'],['kapandi','Kapandı','col-kapandi'],['iptal','İptal','col-iptal']];
+  return `<div class="pipeline">${cols.map(([s,l,cls])=>{
+    let items = leads.filter(x=>x.status===s);
+    if(q) items=items.filter(x=>(x.name||'').toLowerCase().includes(q)||(x.phone||'').includes(q));
+    return `<div class="p-col ${cls}">
+      <div class="p-col-head"><span class="p-col-title">${l}</span><span class="p-col-count">${items.length}</span></div>
+      ${items.length ? items.map(it=>`
+        <div class="lead-card" data-id="${it.id}">
+          <div class="lead-card-name">${it.name}</div>
+          <div class="lead-card-meta">${it.source}<span class="meta-dot"></span>${it.phone||'—'}</div>
+          <div class="lead-card-foot">
+            <span class="lc-date">${fmtDate(it.created)}</span>
+            <span class="lc-kom ${it.komType==='yok'?'none':it.komOdendi==='evet'?'ok':'bek'}">${it.komType==='yok'?'—':komVal(it).toLocaleString('tr-TR')+' ₺'}</span>
+          </div>
+        </div>`).join('') : `<div class="p-empty">Yok</div>`}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── LIST ──────────────────────────────────────
+function listHtml(list) {
+  if (!list.length) return `<div class="tbl-wrap" style="padding:40px;text-align:center;color:var(--t3)">Sonuç yok.</div>`;
+  return `<div class="tbl-wrap"><table>
+    <thead><tr>
+      <th style="width:18%">Ad Soyad</th><th style="width:13%">Telefon</th>
+      <th style="width:10%">Kaynak</th><th style="width:11%">Teklif</th><th style="width:13%">Komisyon</th>
+      <th style="width:11%">Eklenme</th><th style="width:12%">Durum</th><th style="width:12%">Kom. Durumu</th>
+    </tr></thead>
+    <tbody>${list.map(l=>`
+      <tr class="trow" data-id="${l.id}">
+        <td style="font-weight:600">${l.name}</td>
+        <td style="color:var(--t2)">${l.phone||'—'}</td>
+        <td style="color:var(--t3);font-size:11px">${l.source}</td>
+        <td style="font-size:12px;font-weight:600;color:var(--quo)">${l.teklif?(l.teklif).toLocaleString('tr-TR')+' ₺':'—'}</td>
+        <td style="font-size:12px;font-weight:600;color:${l.komType==='yok'?'var(--t3)':komVal(l)>0?'var(--cambel)':'var(--t3)'}">${l.komType==='yok'?'—':komVal(l).toLocaleString('tr-TR')+' ₺'}</td>
+        <td style="color:var(--t3);font-size:12px">${fmtDate(l.created)}</td>
+        <td>${badgeHtml(l.status)}</td>
+        <td><span style="font-size:11px;font-weight:600;color:${l.komType==='yok'?'var(--t3)':l.komOdendi==='evet'?'var(--green)':'var(--orange)'}">${l.komType==='yok'?'—':l.komOdendi==='evet'?'✓ Ödendi':'Bekliyor'}</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+// ── KOMISYON ──────────────────────────────────
+function komisyonHtml() {
+  const bek = leads.filter(l=>l.komType!=='yok'&&l.komOdendi==='hayir'&&l.status!=='iptal');
+  const ode = leads.filter(l=>l.komType!=='yok'&&l.komOdendi==='evet');
+  const kapananBek = bek.filter(l=>l.status==='kapandi');
+  return `<div style="margin-bottom:24px">
+    <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;font-weight:600">Kapandı — Komisyon Bekliyor (${kapananBek.length})</div>
+    ${listHtml(kapananBek)}
+    <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:20px 0 12px;font-weight:600">Süreçte — Komisyon Bekliyor (${bek.filter(l=>l.status!=='kapandi').length})</div>
+    ${listHtml(bek.filter(l=>l.status!=='kapandi'))}
+    <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:20px 0 12px;font-weight:600">Ödenenler (${ode.length})</div>
+    ${listHtml(ode)}
+  </div>`;
+}
+
+// ── RENDER ────────────────────────────────────
+function renderContent() {
+  const el = document.getElementById('mainContent');
+  if (currentView === 'komisyon') {
+    document.getElementById('tbSub').textContent = 'Cambel komisyon takibi';
+    el.innerHTML = statsHtml() + komisyonHtml();
+  } else if (currentView === 'pipeline') {
+    const active = leads.filter(l=>['paslandi','gorusmede'].includes(l.status)).length;
+    document.getElementById('tbSub').textContent = `${leads.length} lead · ${active} aktif süreçte`;
+    el.innerHTML = statsHtml() + pipelineHtml();
+  } else {
+    const list = filteredLeads();
+    document.getElementById('tbSub').textContent = `${list.length} lead`;
+    el.innerHTML = statsHtml() + listHtml(list);
+  }
+  attachEvents();
+}
+function attachEvents() {
+  document.querySelectorAll('.lead-card[data-id],.trow[data-id]').forEach(el=>{
+    el.addEventListener('click', e=>{ if(e.target.closest('[data-edit]'))return; openDetail(parseInt(el.dataset.id)); });
+  });
+}
+
+// ── DETAIL PANEL ──────────────────────────────
+function openDetail(id) {
+  const l = leads.find(x=>x.id===id); if(!l) return;
+  const canEdit = role==='cambel';
+  const canStatus = role==='quo';
+  const statuses = [['paslandi','Paslandı','pas'],['gorusmede','Görüşmede','gor'],['kapandi','Kapandı','kap'],['iptal','İptal','ipt']];
+  const statusBtns = statuses.map(([s,lbl,k])=>`<button class="status-btn ${l.status===s?'on-'+k:''}" data-sid="${s}" data-lid="${id}" ${!canStatus?'disabled style="opacity:.4;cursor:not-allowed"':''}>${lbl}</button>`).join('');
+  const komSection = `
+    <div class="kom-panel">
+      <div class="kom-panel-title">Teklif & Komisyon</div>
+      <div class="dp-row"><span class="dp-key">Müşteriye teklif</span><span class="dp-val" style="color:var(--quo);font-size:18px;font-weight:700">${l.teklif?(l.teklif).toLocaleString('tr-TR')+' ₺':'—'}</span></div>
+      <div class="dp-row" style="margin-top:8px"><span class="dp-key">Cambel komisyonu</span><span class="kom-amount ${l.komType==='yok'?'none':l.komOdendi==='evet'?'ok':'bek'}">${l.komType==='yok'?'—':komVal(l).toLocaleString('tr-TR')+' ₺'}</span></div>
+      ${l.komType!=='yok'?`<div class="kom-status-row">
+        <button class="kom-status-btn ${l.komOdendi==='hayir'?'on-bek':''}" data-kom="hayir" data-lid="${id}" ${!canStatus?'disabled style="opacity:.4;cursor:not-allowed"':''}>Bekliyor</button>
+        <button class="kom-status-btn ${l.komOdendi==='evet'?'on-ok':''}" data-kom="evet" data-lid="${id}" ${!canStatus?'disabled style="opacity:.4;cursor:not-allowed"':''}>✓ Ödendi</button>
+      </div>`:''}
+    </div>
+    ${canStatus?`<button class="dp-edit-btn" style="background:var(--quo);color:#0a0a0b;margin-bottom:8px" onclick="openModal(${id});closeDetail()">Teklif & Komisyon Belirle</button>`:''}`;
+  const quoNote = role==='cambel' ? `<div class="quo-locked">🔒 Teklif ve komisyon Qo Studio tarafından belirlenir.</div>` : '';
+  document.getElementById('dpInner').innerHTML = `
+    <button class="dp-close" onclick="closeDetail()">×</button>
+    <div class="dp-who">Cambel tarafından eklendi</div>
+    <div class="dp-name">${l.name}</div>
+    <div class="dp-meta">${l.source}${l.phone?' · '+l.phone:''}</div>
+    <div class="dp-status-row">${statusBtns}</div>
+    ${quoNote}
+    <div class="dp-section">
+      <div class="dp-sec-title">İletişim</div>
+      <div class="dp-row"><span class="dp-key">Telefon</span><span class="dp-val">${l.phone||'—'}</span></div>
+      <div class="dp-row"><span class="dp-key">E-posta</span><span class="dp-val">${l.email||'—'}</span></div>
+      <div class="dp-row"><span class="dp-key">Kaynak</span><span class="dp-val">${l.source}</span></div>
+      <div class="dp-row"><span class="dp-key">Eklenme tarihi</span><span class="dp-val">${fmtDate(l.created)}</span></div>
+    </div>
+    <div class="dp-section">${komSection}</div>
+    ${l.not?`<div class="dp-section"><div class="dp-sec-title">Not</div><div class="dp-note">${l.not}</div></div>`:''}
+    ${canEdit?`<div class="dp-section" style="border-bottom:none"><button class="dp-edit-btn" onclick="openModal(${id});closeDetail()">Müşteri Bilgilerini Düzenle</button></div>`:''}
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+  // status buttons
+  document.querySelectorAll('[data-sid]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const lead = leads.find(x=>x.id===parseInt(b.dataset.lid));
+      if(lead && canStatus){ lead.status=b.dataset.sid; save(); openDetail(lead.id); renderContent(); renderSidebar(); }
+    });
+  });
+  // komisyon buttons
+  document.querySelectorAll('[data-kom]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const lead = leads.find(x=>x.id===parseInt(b.dataset.lid));
+      if(lead && canStatus){ lead.komOdendi=b.dataset.kom; save(); openDetail(lead.id); renderContent(); renderSidebar(); }
+    });
+  });
+}
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+
+// ── MODAL ─────────────────────────────────────
+function setKT(t) { komType = t; }
+function openModal(id) {
+  // Cambel can add/edit contact info; Qo Studio can only edit pricing on existing leads
+  if(role==='quo' && !id){ alert('Qo Studio yeni lead ekleyemez.'); return; }
+  editId = id;
+  const l = id ? leads.find(x=>x.id===id)||{} : {};
+  document.querySelector('.modal-title span').textContent = id ? 'düzenle' : 'ekle';
+  document.getElementById('fname').value = l.name||'';
+  document.getElementById('fphone').value = l.phone||'';
+  document.getElementById('femail').value = l.email||'';
+  document.getElementById('fsource').value = l.source||'Instagram';
+  document.getElementById('fnot').value = l.not||'';
+  // Show pricing section only for Qo Studio
+  const quoSec = document.getElementById('quoModalSection');
+  if(role==='quo'){
+    quoSec.style.display='block';
+    komType = 'sabit';
+    setTimeout(()=>{
+      if(document.getElementById('fkomtutar')) document.getElementById('fkomtutar').value=l.komTutar||'';
+      if(document.getElementById('fteklif')) document.getElementById('fteklif').value=l.teklif||'';
+    },0);
+  } else {
+    quoSec.style.display='none';
+  }
+  // Disable contact fields for Qo Studio (they only set pricing)
+  ['fname','fphone','femail','fsource','fnot'].forEach(fid=>{
+    const el=document.getElementById(fid);
+    if(el) el.disabled = role==='quo';
+  });
+  document.getElementById('mDelWrap').innerHTML = id && role==='cambel' ? `<button class="del-link" onclick="deleteLead(${id})">Sil</button>` : '';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function saveLead() {
+  const existing = editId ? leads.find(x=>x.id===editId)||{} : {};
+  const komTutar = parseFloat((document.getElementById('fkomtutar')||{value:0}).value)||0;
+  const teklif = parseFloat((document.getElementById('fteklif')||{value:0}).value)||0;
+  const l = {
+    id: editId||Date.now(),
+    // Contact info — only Cambel edits these
+    name: role==='cambel' ? document.getElementById('fname').value.trim()||'İsimsiz' : (existing.name||'İsimsiz'),
+    phone: role==='cambel' ? document.getElementById('fphone').value.trim() : (existing.phone||''),
+    email: role==='cambel' ? document.getElementById('femail').value.trim() : (existing.email||''),
+    source: role==='cambel' ? document.getElementById('fsource').value : (existing.source||'Diğer'),
+    not: role==='cambel' ? document.getElementById('fnot').value.trim() : (existing.not||''),
+    // Pricing — only Qo Studio edits these
+    teklif: role==='quo' ? teklif : (existing.teklif||0),
+    komType: role==='quo' ? 'sabit' : (existing.komType||'sabit'),
+    komTutar: role==='quo' ? komTutar : (existing.komTutar||0),
+    komOdendi: existing.komOdendi||'hayir',
+    status: existing.status||'paslandi',
+    created: existing.created||new Date().toISOString().split('T')[0],
+  };
+  if(editId){ const i=leads.findIndex(x=>x.id===editId); if(i>=0)leads[i]=l; else leads.push(l); }
+  else leads.push(l);
+  save(); closeModal(); renderContent(); renderSidebar();
+}
+function deleteLead(id) {
+  if(!confirm('Bu leadı silmek istiyor musun?'))return;
+  leads=leads.filter(l=>l.id!==id); save(); closeModal(); renderContent(); renderSidebar();
+}
+
+load();
+</script>
+</body>
+</html>
